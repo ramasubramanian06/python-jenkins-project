@@ -1,8 +1,12 @@
 pipeline {
 
     agent any
+    options {
+        skipDefaultCheckout(true)
+    }
 
     environment {
+        IMAGE_NAME = "ramasubramanian06/todo-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
@@ -10,7 +14,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git credentialsId: 'YOUR_GITHUB_CREDENTIALS_ID',
+                git credentialsId: 'github-credentials',
                     url: 'https://github.com/ramasubramanian06/python-jenkins-project.git',
                     branch: 'main'
             }
@@ -18,21 +22,34 @@ pipeline {
 
         stage('Build Docker') {
             steps {
-                script {
-                    sh '''
-                    echo 'Build Docker Image'
-                    docker build -t ramasubramanian06/todo-app:${BUILD_NUMBER} .
-                    '''
-                }
+                sh '''
+                    echo "Building Docker Image"
+                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                '''
             }
         }
 
-        stage('Push the artifacts') {
+        stage('Push Docker Image') {
             steps {
-                script {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
                     sh '''
-                    echo 'Push to Repo'
-                    docker push ramasubramanian06/todo-app:${BUILD_NUMBER}
+                        echo "Login to Docker Hub"
+
+                        echo "$DOCKER_PASSWORD" | docker login \
+                        -u "$DOCKER_USERNAME" \
+                        --password-stdin
+
+                        echo "Pushing Docker Image"
+
+                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+
+                        docker logout
                     '''
                 }
             }
@@ -40,19 +57,35 @@ pipeline {
 
         stage('Update K8S manifest & push to Repo') {
             steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'YOUR_GITHUB_CREDENTIALS_ID', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                        sh '''
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'github-credentials',
+                        usernameVariable: 'GIT_USERNAME',
+                        passwordVariable: 'GIT_PASSWORD'
+                    )
+                ]) {
+
+                    sh '''
+                        echo "Current deployment manifest:"
                         cat deploy.yaml
-                        sed -i "s|ramasubramanian06/todo-app:.*|ramasubramanian06/todo-app:${BUILD_NUMBER}|g" deploy.yaml
+
+                        echo "Updating Docker image tag..."
+
+                        sed -i "s|ramasubramanian06/todo-app:.*|${IMAGE_NAME}:${IMAGE_TAG}|g" deploy.yaml
+
+                        echo "Updated deployment manifest:"
                         cat deploy.yaml
+
                         git config user.email "jenkins@ci.local"
                         git config user.name "Jenkins CI"
+
                         git add deploy.yaml
-                        git commit -m "Updated deploy.yaml image tag to ${BUILD_NUMBER} | Jenkins Pipeline"
+
+                        git commit -m "Update todo-app image to ${IMAGE_TAG} [skip ci]"
+
                         git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/ramasubramanian06/python-jenkins-project.git HEAD:main
-                        '''
-                    }
+                    '''
                 }
             }
         }
