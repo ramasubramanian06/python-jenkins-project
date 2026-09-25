@@ -192,52 +192,6 @@ Stop the application:
 docker compose down
 ```
 
-# 📸 Project Screenshots
-
-
-### Jenkins Pipeline
-
-```text
-images/jenkins-pipeline.png
-```
-
-### Docker Hub Image
-
-```text
-images/dockerhub.png
-```
-
-### Argo CD Application
-
-```text
-images/argocd.png
-```
-
-### Kubernetes Pods
-
-```text
-images/kubernetes.png
-```
-
-### Todo Application
-
-```text
-images/todo-app.png
-```
-
-```markdown
-![Jenkins Pipeline](images/jenkins-pipeline.png)
-
-![Docker Hub](images/dockerhub.png)
-
-![Argo CD](images/argocd.png)
-
-![Kubernetes](images/kubernetes.png)
-
-![Todo Application](images/todo-app.png)
-```
-
-
 
 # 👨‍💻 Author
 
