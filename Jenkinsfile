@@ -68,7 +68,7 @@ pipeline {
 
                     sh '''
                         echo "Current deployment manifest:"
-                        cat deploy.yaml
+                        cat kubernetes/deploy.yaml
 
                         echo "Updating Docker image tag..."
 
