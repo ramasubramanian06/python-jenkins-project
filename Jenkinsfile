@@ -72,7 +72,7 @@ pipeline {
 
                         echo "Updating Docker image tag..."
 
-                        sed -i "s|ramasubramanian06/todo-app:.*|${IMAGE_NAME}:${IMAGE_TAG}|g" deploy.yaml
+                        sed -i "s|ramasubramanian06/todo-app:.*|${IMAGE_NAME}:${IMAGE_TAG}|g" kubernetes/deploy.yaml
 
                         echo "Updated deployment manifest:"
                         cat deploy.yaml
