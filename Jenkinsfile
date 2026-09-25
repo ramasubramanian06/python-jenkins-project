@@ -80,7 +80,7 @@ pipeline {
                         git config user.email "jenkins@ci.local"
                         git config user.name "Jenkins CI"
 
-                        git add deploy.yaml
+                        git add kubernetes/deploy.yaml
 
                         git commit -m "Update todo-app image to ${IMAGE_TAG} [skip ci]"
 
