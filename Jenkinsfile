@@ -75,12 +75,12 @@ pipeline {
                         sed -i "s|ramasubramanian06/todo-app:.*|${IMAGE_NAME}:${IMAGE_TAG}|g" kubernetes/deploy.yaml
 
                         echo "Updated deployment manifest:"
-                        cat deploy.yaml
+                        cat kubernetes/deploy.yaml
 
                         git config user.email "jenkins@ci.local"
                         git config user.name "Jenkins CI"
 
-                        git add kubernetes/deploy.yaml
+                        git add deploy.yaml
 
                         git commit -m "Update todo-app image to ${IMAGE_TAG} [skip ci]"
 
